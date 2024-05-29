@@ -6,7 +6,11 @@ const {
   createUserMediaPath,
   uploadUserMedia,
 } = require("../helpers/uploadImage");
-const { addPost, getPostDetail } = require("../Controllers/User/home");
+const {
+  addPost,
+  getPostDetail,
+  getSimilarPost,
+} = require("../Controllers/User/home");
 const router = express.Router();
 
 //Auth
@@ -24,5 +28,6 @@ router.post(
   addPost
 );
 router.get("/getPostDetail/:id", tokenUserAuthorisation, getPostDetail);
+router.get("/getSimilarPost/:id", tokenUserAuthorisation, getSimilarPost);
 
 module.exports = router;

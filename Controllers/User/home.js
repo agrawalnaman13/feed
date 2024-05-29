@@ -39,3 +39,15 @@ exports.getPostDetail = async (req, res) => {
     return res.status(500).json(error("error", res.statusCode));
   }
 };
+
+exports.getSimilarPost = async (req, res) => {
+  try {
+    const post = await Post.find({ _id: { $ne: req.params.id } }).populate(
+      "userId"
+    );
+    return res.status(200).json(success("Success", { post }, res.statusCode));
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(error("error", res.statusCode));
+  }
+};
