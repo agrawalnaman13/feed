@@ -43,6 +43,7 @@ exports.getPostDetail = async (req, res) => {
           as: "userId",
         },
       },
+      { $unwind: "$userId" },
       {
         $lookup: {
           localField: "_id",
@@ -55,6 +56,7 @@ exports.getPostDetail = async (req, res) => {
         },
       },
       { $addFields: { isBookmarked: { $gt: [{ $size: "$bookmarks" }, 0] } } },
+      { $unset: "bookmarks" },
     ]);
     return res
       .status(200)
