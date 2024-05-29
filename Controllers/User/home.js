@@ -13,9 +13,9 @@ exports.addPost = async (req, res) => {
         .json(error("Please provide image", res.statusCode));
     }
     const image = `${process.env.BASE_URL}${req.files[0].destination.replace(
-      "./public",
+      "./public/",
       ""
-    )}${req.files[0].filename}`;
+    )}/${req.files[0].filename}`;
     const post = await Post.create({
       userId: req.user._id,
       image,
