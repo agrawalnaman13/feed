@@ -33,8 +33,34 @@ exports.addPost = async (req, res) => {
 
 exports.getPostDetail = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate("userId");
-    return res.status(200).json(success("Success", { post }, res.statusCode));
+    const post = await Post.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } },
+      {
+        $lookup: {
+          localField: "userId",
+          foreignField: "_id",
+          from: "users",
+          as: "userId",
+        },
+      },
+      {
+        $lookup: {
+          localField: "_id",
+          foreignField: "postId",
+          from: "bookmarks",
+          as: "bookmarks",
+          pipeline: [
+            { $match: { userId: new mongoose.Types.ObjectId(req.user._id) } },
+          ],
+        },
+      },
+      { $addFields: { isBookmarked: { $gt: [{ $size: "$bookmarks" }, 0] } } },
+    ]);
+    return res
+      .status(200)
+      .json(
+        success("Success", { post: post.length ? post[0] : {} }, res.statusCode)
+      );
   } catch (err) {
     console.log(err);
     return res.status(500).json(error("error", res.statusCode));
@@ -66,13 +92,13 @@ exports.bookmark = async (req, res) => {
     let msg = "";
     if (isBookmarked) {
       await Bookmark.findByIdAndDelete(isBookmarked._id);
-      msg = "Post Bookmarked";
+      msg = "Bookmark Removed";
     } else {
       await Bookmark.create({
         userId: req.user._id,
         postId: req.params.id,
       });
-      msg = "Bookmark Removed";
+      msg = "Post Bookmarked";
     }
     return res.status(200).json(success(msg, {}, res.statusCode));
   } catch (err) {
