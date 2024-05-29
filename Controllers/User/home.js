@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const { error, success } = require("../../ApiResponse/apiResponse");
 const Post = require("../../Models/User/posts");
+const Bookmark = require("../../Models/User/bookmark");
 
 exports.addPost = async (req, res) => {
   try {
@@ -46,6 +47,34 @@ exports.getSimilarPost = async (req, res) => {
       "userId"
     );
     return res.status(200).json(success("Success", { post }, res.statusCode));
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(error("error", res.statusCode));
+  }
+};
+
+exports.bookmark = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(200).json(error("Invalid post id", res.statusCode));
+    }
+    const isBookmarked = await Bookmark.findOne({
+      userId: req.user._id,
+      postId: req.params.id,
+    });
+    let msg = "";
+    if (isBookmarked) {
+      await Bookmark.findByIdAndDelete(isBookmarked._id);
+      msg = "Post Bookmarked";
+    } else {
+      await Bookmark.create({
+        userId: req.user._id,
+        postId: req.params.id,
+      });
+      msg = "Bookmark Removed";
+    }
+    return res.status(200).json(success(msg, {}, res.statusCode));
   } catch (err) {
     console.log(err);
     return res.status(500).json(error("error", res.statusCode));

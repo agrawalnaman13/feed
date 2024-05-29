@@ -10,6 +10,7 @@ const {
   addPost,
   getPostDetail,
   getSimilarPost,
+  bookmark,
 } = require("../Controllers/User/home");
 const router = express.Router();
 
@@ -29,5 +30,6 @@ router.post(
 );
 router.get("/getPostDetail/:id", tokenUserAuthorisation, getPostDetail);
 router.get("/getSimilarPost/:id", tokenUserAuthorisation, getSimilarPost);
+router.get("/bookmark/:id", tokenUserAuthorisation, bookmark);
 
 module.exports = router;
